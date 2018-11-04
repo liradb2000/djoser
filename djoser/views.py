@@ -112,10 +112,17 @@ class TokenCreateView(utils.ActionViewMixin, generics.GenericAPIView):
     def _action(self, serializer):
         token = utils.login_user(self.request, serializer.user)
         token_serializer_class = settings.SERIALIZERS.token
-        return Response(
-            data=token_serializer_class(token).data,
-            status=status.HTTP_200_OK,
-        )
+
+        if token == None:
+            return Response(
+                    {"error": "Maximum amount of tokens allowed per user exceeded."},
+                    status=status.HTTP_403_FORBIDDEN
+            )
+        else:
+            return Response(
+                data={'token': token},
+                status=status.HTTP_200_OK,
+            )
 
 
 class TokenDestroyView(views.APIView):
